@@ -1,0 +1,116 @@
+---
+title: "RGR MS"
+author: "Chris H. Wilson"
+date: "March 2, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+
+```
+
+
+
+$$\S_t = \frac{KS_0e^{rt}}{K+P_0(e^{rt}-1)}$$
+
+Now, if we log transform our data, as practiced when calculating RGR using the canonical approach, our functional is: 
+
+$$\log(S_t) = log(K) + log(S_0) + rt - log(K + P_0(e^{rt}-1))$$
+
+If we have size observations $S_1$ and $S_2$ from two times, $t_1$ and $t_2$,the difference between them is: 
+
+$$\log(S_2) - log(S_1) = r(t_2 - t_1) + log(\frac{K + P_0(e^{rt_1}-1)}{K + P_0(e^{rt_2}-1)})$$
+If we simplify, and set $t_1=0$, re-expressing $t_2=t$, we have: 
+
+$$\log(S_2) - log(S_1) = rt + log(\frac{K}{K + P_0(e^{rt}-1)})$$
+
+Thus, if we theoretically make error-free observations over time of a plant, or any other organism for that matter, following sigmoidal growth function above, and re-express our growth increment as the log of the size at time $t$ minus log of initial size, our observations will follow this curve:
+
+```{r sigmoid log-sigmoid comparison, echo = FALSE}
+log_sigmoid <- function(t,Po=Po,K=K,r=r){
+  log_val <- r*t + log(K/(K+Po*(exp(r*t)-1)));
+  return(log_val);
+}
+
+sigmoid <- function(t,Po=Po,K=K,r=r){
+  sig_val <- (K*Po*exp(r*t))/(K+Po*(exp(r*t)-1)) - Po;
+  return(sig_val);
+}
+
+Po <- 1;
+K <- 10;
+r <- 0.1;
+#log_sigmoid(Po,K,r,t=1)
+
+ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = log_sigmoid, args = list(Po,K,r)) + stat_function(fun = sigmoid, args = list(Po,K,r), color = "red") + theme_bw()
+
+```
+
+
+Thus, a good deal of the potential for growth is washed out of the measure, particularly of course where the sigmoidal curve flips from convex to concave. This is not theoretically surprising, and, as noted above, we concur with the general recommendation to always fit a more suitable non-linear growth model where a time series of data ${S}^N_{i=1}$ is available. The practical point here is that use of the log-transformed measure should *not* be routine in analyses of ecological growth data where no such time series is available. 
+
+Now, use of the linear difference $\frac{S_2 - S_1}{t}$ corresponds to assumption of a static linear growth rate dynamic, just as use of $\frac{log(S_2) - log(S_1)}{t}$ corresponds to assuming a constant exponential growth rate dynamic. In the latter case, the log-measure has the nice property of representing an ergodic observable (sense Peters and Gell-man 2016). While widely (and rightly) dismissed as unrealistic, the linear dynamic $\frac{S_2 - S_1}{t}$ may in fact be a generally superior measure for ecological analysis where no time series of size/biomass data is available.  
+
+
+As can be seen, the linear model is a far better approximation where data are taken from within the center part of the growth cycle. 
+```{r, echo=FALSE}
+
+
+sigmoid2 <- function(t,Po=Po,K=K,r=r){
+  sig_val <- (K*Po*exp(r*t))/(K+Po*(exp(r*t)-1));
+  return(sig_val);
+}
+
+
+
+sigmoid_lin_approx <- function(t,t1,t2,Po=Po,K=K,r=r){
+  line_slope <- ((K*Po*exp(r*t2))/(K+Po*(exp(r*t2)-1)) - (K*Po*exp(r*t1))/(K+Po*(exp(r*t1)-1)))/(t2-t1);
+  line_function <- (K*Po*exp(r*t1))/(K+Po*(exp(r*t1)-1)) + 
+  line_slope*(t-t1);
+  return(line_function);
+}
+
+sigmoid_exp_approx <- function(t,t1,t2,Po=Po,K=K,r=r){
+  r_est <- (log(((K*Po*exp(r*t2))/(K+Po*(exp(r*t2)-1)))) - log((K*Po*exp(r*t1))/(K+Po*(exp(r*t1)-1))))/(t2-t1);
+  exp_function <- ((K*Po*exp(r*t1))/(K+Po*(exp(r*t1)-1)))*exp(r_est*(t-t1));
+  return(exp_function);
+}
+
+t2 <- 25
+t1 <- 12
+
+
+ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, args = list(Po,K,r)) + stat_function(fun = sigmoid_exp_approx, args = list(t1,t2,Po,K,r), color = "red") +
+  stat_function(fun = sigmoid_lin_approx, args = list(t1,t2,Po,K,r),color = "green") +
+  theme_bw() + scale_y_continuous(limits = c(0,15))
+
+
+
+
+```
+
+Even where collection of data is exclusively from the convex portion of the growth curve, the superior fit of the exponential model provides only a marginal gain in the convex portion of the curve, and then in absolute value, quickly diverges thereafter. 
+
+```{r}
+t2 <- 14
+t1 <- 2
+
+
+ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, args = list(Po,K,r)) + stat_function(fun = sigmoid_exp_approx, args = list(t1,t2,Po,K,r), color = "red") +
+  stat_function(fun = sigmoid_lin_approx, args = list(t1,t2,Po,K,r),color = "green") +
+  theme_bw() + scale_y_continuous(limits = c(0,15))
+
+```
+
+
+In summary, the chief virtue of the $\frac{log(S_2) - log(S_1)}{t}$ measure is that it effectively linearizes the differences in size from the convex portion of biological growth curve. Thus, it arguably might increase the ability to discern subtle but consequential differences in growth rates in experiments or observations. However, this strength is also a liability - given process and measurement error, I suspect it inflates the odds of infering patterns that do not exist. 
+
+The much maligned linear measure is a superior default on two grounds therefore. First, it corresponds far more directly with current ecological reality. It is a measure with an interpretable biological dimension (usually mass or length) that helps us understand and describe our system. Interpreted as a dynamic, it is obviously flawed, but is demonstrably better in e.g. MSE than the exponential dynamic.  
+
+The widespread use of "RGR" $\frac{log(S_2) - log(S_1)}{t}$ should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate. The ideal scenario is to collect a proper time series (5-7+) and fit a proper growth model. Where data are at all limiting, we recommend careful incorporation of literature values and other external information as priors in a fully Bayesian analysis in order to regularize inferences. 
+
+
+
+
