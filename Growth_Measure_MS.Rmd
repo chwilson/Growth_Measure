@@ -3,9 +3,9 @@ title: "RGR MS"
 author: "Chris H. Wilson"
 date: "March 2, 2019"
 output:
-  word_document: default
-  html_document: default
   pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -68,7 +68,7 @@ $$S_t = \frac{KS_0e^{rt}}{K+P_0(e^{rt}-1)}$$
 
 Given this representation of underlying growth, the first question is: what does the canonical log measure $\frac{log(S_2) - log(S_1)}{t}$ correspond to? In other words, we want to ask what happens given exact measurements of $S_2$ and $S_1$, given that they are sampled from above equation. For $log(S_t)$ We have: 
 
-$$\log(S_t) = log(K) + log(S_0) + rt - log(K + P_0(e^{rt}-1))$$
+$$\log(S_t) = log(K) + log(S_0) + rt - log(K + S_0(e^{rt}-1))$$
 
 If we have size observations $S_1$ and $S_2$ from two times, $t_1$ and $t_2$,the difference between them is: 
 
@@ -214,20 +214,61 @@ ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, ar
 
 
 ```
-As expected, in this scenario, the linear approximation is uniformly better and thus always to be preferred. 
+As expected, in this scenario, the linear approximation is uniformly better and thus always to be preferred.
+
+### Statistical Properties
+
+We can derive the sampling distribution of the log measure  $\frac{log(S_2) - log(S_1)}{t}$ based on a Taylor Series' approximation. Specifically, we consider measurements $S_2$ and $S_1$ with normally distributed error, where the variance scales with the mean (a fairly typical property in biological/ecological data). The distribution of $S_2$ - $S_1$ is then simply the difference of two Normals. Next, we approximate the moments of the distribution of $log(S_t)$ as: $$E[log(S_t)] \approx log(\mu_{S_t}) - \frac{\sigma^2}{2*\mu_{S_t}^2}$$. Using the delta method for variance, we have: $$Var[log(S_t)] \approx \frac{\sigma^2}{\mu_{S_t}^2}$$
+
+Given a constant coefficient of variation (reflecting variance scaling with mean on the original scale) $CV_s$ the sampling distribution of $\frac{log(S_2) - log(S_1)}{t}$ (setting $t$ to unit scale), is therefore: $$ N(log(S_2) - log(S_1), \sqrt2CV_s)$$ 
+
+The CV of the log measure is then related to the expectaiton of the Z scores of the new sampling distribution, and is inversely proportional to statistical power: $$CV_l =\frac{\sqrt2}{log(S_2) - log(S_1)}CV_s$$
+
+Thus, where $log(S_2) - log(S_1) > \sqrt2$ over a unit time increment, the log measure should have greater statistical power, while it loses statistical power as the log measure declines (which as we saw in section XXX above occurs faster than the linear difference of course). This can be reformulated as $S_2=S_1e^{\sqrt2}$, revealing a *scale free* property of statistical analysis of the log measure. Specifically, wherever the multiplicative growth increase on a unit time scale $<e^{\sqrt2}$, the log measure has worse statistical properties than the linear difference. 
+
+For our previous parameter value simulations above, here is the curve of $CV_l$ with time $t$, expressed in multiples of $CV_s$: 
+```{r, echo = FALSE}
+
+master_func <- function(t,delta,Po=Po,K=K,r=r){
+  log_mu_val_1 <- log((K*Po*exp(r*t))/(K+Po*(exp(r*t)-1)));
+  log_mu_val_2 <- log((K*Po*exp(r*(t+delta)))/(K+Po*(exp(r*(t+delta))-1)));
+  cv_val_1 <- 0.2
+ cv_val_2 <- 0.2
+ 
+mu_log_diff <- log_mu_val_2 - log_mu_val_1 - (1/sqrt(2))*(cv_val_1)^2 + (1/sqrt(2))*cv_val_2^2;
+
+var_log_diff <- (cv_val_1^2) + (cv_val_2^2);
+
+cv_log_diff <- sqrt(var_log_diff)/mu_log_diff; 
+return(cv_log_diff/cv_val_1);
+}
+
+ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw()
+
+```
+
+As can be seen, in this situation, it is always worse! What happens if we accelerate growth rate considerably (5X)
+
+```{r, echo = FALSE}
+r2 <- r*5  
+ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r=r2)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + scale_x_continuous(limits = c(0,3))
+
+```
+
+There is a small window in early growth where it is expected to have better properties for estimating observed differences, but it rapidly loses power. 
 
 
 ### Case Study: A Situation Statistical Analysis of Log Measure and Linear Measure Diverge
 
-In some situation
+Maybe not necessary here. Theoretical demonstration feels complete. 
 
 
 ### Conclusions and Recommendations 
 
-In summary, the chief virtue of the $\frac{log(S_2) - log(S_1)}{t}$ measure is that it effectively linearizes the differences in size from the convex portion of biological growth curve. Thus, it arguably might increase the ability to discern subtle but consequential differences in growth rates in experiments or observations. However, this strength is also a liability - given process and measurement error, I suspect it inflates the odds of infering patterns that do not exist. 
+In summary, the chief virtue of the $\frac{log(S_2) - log(S_1)}{t}$ measure is that it effectively linearizes the differences in size from the convex portion of biological growth curve. Thus, it arguably might increase the ability to infer subtle but consequential differences in growth rates based on small differences in observed sizes. However, analysis of the statistical sampling distribution suggests that inference on this quantity is actually more difficult than inference on the linear measure. In fact, ability to detect differences rapidly declines with position on the sigmoidal curve.  
 
-The much maligned linear measure is a superior default on two grounds therefore. First, it corresponds far more directly with current ecological reality. It is a measure with an interpretable biological dimension (usually mass or length, whereas the log measure has dimensions of $\frac{1}{time}$). This enables us to more literally describe our system.  
+The much maligned linear measure is a superior default on three grounds therefore. First, it corresponds far more directly with current ecological reality. It is a measure with an interpretable biological dimension (usually mass or length, whereas the log measure has dimensions of $\frac{1}{time}$). This enables us to more literally describe our system. Second, interpreted in terms of dynamics, it is *less wrong* than the exponential approximation implied by the log measure. Third, it has superior statistical properties almost everywhere.   
 
-The widespread use of "RGR" $\frac{log(S_2) - log(S_1)}{t}$ as an *a priori* preferred default for the data-limited situation should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate. The ideal scenario is to collect a proper time series (5-7+) and fit a proper growth model. Where data are at all limiting, we recommend careful incorporation of literature values and other external information as priors in a fully Bayesian analysis in order to regularize inferences. 
+The widespread use of the log measure of "RGR" $\frac{log(S_2) - log(S_1)}{t}$ as an *a priori* preferred default for the data-limited situation should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate. The ideal scenario is to collect a proper time series (5-7+) and fit a proper growth model. Where data are at all limiting, we recommend careful incorporation of literature values and other external information as priors in a fully Bayesian analysis in order to regularize inferences. 
 
 
