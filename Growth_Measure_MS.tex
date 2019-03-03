@@ -1,0 +1,233 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={RGR MS},
+            pdfauthor={Chris H. Wilson},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{RGR MS}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \author{Chris H. Wilson}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{March 2, 2019}
+
+
+\begin{document}
+\maketitle
+
+\[\S_t = \frac{KS_0e^{rt}}{K+P_0(e^{rt}-1)}\]
+
+Now, if we log transform our data, as practiced when calculating RGR
+using the canonical approach, our functional is:
+
+\[\log(S_t) = log(K) + log(S_0) + rt - log(K + P_0(e^{rt}-1))\]
+
+If we have size observations \(S_1\) and \(S_2\) from two times, \(t_1\)
+and \(t_2\),the difference between them is:
+
+\[\log(S_2) - log(S_1) = r(t_2 - t_1) + log(\frac{K + P_0(e^{rt_1}-1)}{K + P_0(e^{rt_2}-1)})\]
+If we simplify, and set \(t_1=0\), re-expressing \(t_2=t\), we have:
+
+\[\log(S_2) - log(S_1) = rt + log(\frac{K}{K + P_0(e^{rt}-1)})\]
+
+Thus, if we theoretically make error-free observations over time of a
+plant, or any other organism for that matter, following sigmoidal growth
+function above, and re-express our growth increment as the log of the
+size at time \(t\) minus log of initial size, our observations will
+follow this curve:
+
+\includegraphics{Growth_Measure_MS_files/figure-latex/sigmoid log-sigmoid comparison-1.pdf}
+
+Thus, a good deal of the potential for growth is washed out of the
+measure, particularly of course where the sigmoidal curve flips from
+convex to concave. This is not theoretically surprising, and, as noted
+above, we concur with the general recommendation to always fit a more
+suitable non-linear growth model where a time series of data
+\({S}^N_{i=1}\) is available. The practical point here is that use of
+the log-transformed measure should \emph{not} be routine in analyses of
+ecological growth data where no such time series is available.
+
+Now, use of the linear difference \(\frac{S_2 - S_1}{t}\) corresponds to
+assumption of a static linear growth rate dynamic, just as use of
+\(\frac{log(S_2) - log(S_1)}{t}\) corresponds to assuming a constant
+exponential growth rate dynamic. In the latter case, the log-measure has
+the nice property of representing an ergodic observable (sense Peters
+and Gell-man 2016). While widely (and rightly) dismissed as unrealistic,
+the linear dynamic \(\frac{S_2 - S_1}{t}\) may in fact be a generally
+superior measure for ecological analysis where no time series of
+size/biomass data is available.
+
+As can be seen, the linear model is a far better approximation where
+data are taken from within the center part of the growth cycle.
+
+\begin{verbatim}
+## Warning: Removed 18 rows containing missing values (geom_path).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 2 rows containing missing values (geom_path).
+\end{verbatim}
+
+\includegraphics{Growth_Measure_MS_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+Even where collection of data is exclusively from the convex portion of
+the growth curve, the superior fit of the exponential model provides
+only a marginal gain in the convex portion of the curve, and then in
+absolute value, quickly diverges thereafter.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{t2 <-}\StringTok{ }\DecValTok{14}
+\NormalTok{t1 <-}\StringTok{ }\DecValTok{2}
+
+
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =} \KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{t=}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{50}\NormalTok{)),}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{t)) }\OperatorTok{+}\StringTok{ }\KeywordTok{stat_function}\NormalTok{(}\DataTypeTok{fun =}\NormalTok{ sigmoid2, }\DataTypeTok{args =} \KeywordTok{list}\NormalTok{(Po,K,r)) }\OperatorTok{+}\StringTok{ }\KeywordTok{stat_function}\NormalTok{(}\DataTypeTok{fun =}\NormalTok{ sigmoid_exp_approx, }\DataTypeTok{args =} \KeywordTok{list}\NormalTok{(t1,t2,Po,K,r), }\DataTypeTok{color =} \StringTok{"red"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{stat_function}\NormalTok{(}\DataTypeTok{fun =}\NormalTok{ sigmoid_lin_approx, }\DataTypeTok{args =} \KeywordTok{list}\NormalTok{(t1,t2,Po,K,r),}\DataTypeTok{color =} \StringTok{"green"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_bw}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{limits =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{15}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 33 rows containing missing values (geom_path).
+\end{verbatim}
+
+\includegraphics{Growth_Measure_MS_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+In summary, the chief virtue of the \(\frac{log(S_2) - log(S_1)}{t}\)
+measure is that it effectively linearizes the differences in size from
+the convex portion of biological growth curve. Thus, it arguably might
+increase the ability to discern subtle but consequential differences in
+growth rates in experiments or observations. However, this strength is
+also a liability - given process and measurement error, I suspect it
+inflates the odds of infering patterns that do not exist.
+
+The much maligned linear measure is a superior default on two grounds
+therefore. First, it corresponds far more directly with current
+ecological reality. It is a measure with an interpretable biological
+dimension (usually mass or length) that helps us understand and describe
+our system. Interpreted as a dynamic, it is obviously flawed, but is
+demonstrably better in e.g.~MSE than the exponential dynamic.
+
+The widespread use of ``RGR'' \(\frac{log(S_2) - log(S_1)}{t}\) should
+be abandoned. Where only two or three time points are available, fitting
+a linear growth trend is just as good if not better than estimating an
+exponential growth rate. The ideal scenario is to collect a proper time
+series (5-7+) and fit a proper growth model. Where data are at all
+limiting, we recommend careful incorporation of literature values and
+other external information as priors in a fully Bayesian analysis in
+order to regularize inferences.
+
+
+\end{document}

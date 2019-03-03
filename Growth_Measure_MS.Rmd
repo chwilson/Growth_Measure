@@ -2,7 +2,10 @@
 title: "RGR MS"
 author: "Chris H. Wilson"
 date: "March 2, 2019"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,11 +14,26 @@ library(ggplot2)
 
 ```
 
+Analyzing growth of individuals is fundamental in many areas of ecology and biology. A common situation is the need to intercompare multiple individuals across genotypes or species in experimental or observational settings where variations in initial sizes and environmental factors both contribute to observed variations in size at any point in time. In this setting, a common default practice is to re-express growth as a relative measure, dividing the growth increment by the initial size. In the limit as the time period goes to zero, this can be represented as $$\frac{dS}{dt}\frac{1}{S}$$ 
+
+Without explicit specification of a time-varying dynamic, e.g. some kind of non-linear growth function, this representation corresponds to exponential growth. That is, the quantity obtained by integration of $$\frac{dS}{dt}\frac{1}{S} = k$$ over some time period, and given some initial size $S_0$
+
+is simply the familiar exponential equation $$S_t = S_0e^{kt}$$
 
 
-$$\S_t = \frac{KS_0e^{rt}}{K+P_0(e^{rt}-1)}$$
+The quantity in equation 1 is often referred to as relative growth rate (RGR), and the usual method of quantification, hereafter the "log measure" corresponds to the solution in 2, as is readily checked. The log measure is, simply $\frac{log(S_2) - log(S_1)}{t}$
 
-Now, if we log transform our data, as practiced when calculating RGR using the canonical approach, our functional is: 
+The log measure is very frequently utilized as a default in place of taking the simply difference $\frac{S_2 - S_1}{t}$. XXX et al. (2012) summarized several flaws of the log measure and recommended instead to fit non-linear growth functions. I wholeheartedly concur with this advice. However, ecologists are often confronted with datasets where only 2 or 3 time periods are available, thus precluding effective fitting of non-linear functions. 
+
+In this note, I demonstrate that the log measure should also not be used in the data limited setting of only 2 or 3 observation times. Instead, the simply linear difference is to be preferred for three reasons: 1) simplicity of interpretation, 2) ecological/biological validity, and 3) ease of use.    
+
+First, let us consider a simple theoretical framework for growth: the sigmoidal curve. We will compare the linear difference and the log measure to the a sigmoidal curve, presumed to represent a far superior approximation to the underlying biological/ecological reality. 
+
+The logistic equation, a reasonable option for representing the universal sigmoidal growth of organisms: 
+
+$$S_t = \frac{KS_0e^{rt}}{K+P_0(e^{rt}-1)}$$
+
+All well and good. What happends if we utilize the log measure $\frac{log(S_2) - log(S_1)}{t}$, as practiced when calculating RGR using the canonical approach? We can analytically express the result as: 
 
 $$\log(S_t) = log(K) + log(S_0) + rt - log(K + P_0(e^{rt}-1))$$
 
@@ -26,7 +44,7 @@ If we simplify, and set $t_1=0$, re-expressing $t_2=t$, we have:
 
 $$\log(S_2) - log(S_1) = rt + log(\frac{K}{K + P_0(e^{rt}-1)})$$
 
-Thus, if we theoretically make error-free observations over time of a plant, or any other organism for that matter, following sigmoidal growth function above, and re-express our growth increment as the log of the size at time $t$ minus log of initial size, our observations will follow this curve:
+Thus, if we theoretically make error-free observations over time of a plant, or any other organism for that matter, following sigmoidal growth function above, and re-express our growth increment as the log of the size at time $t$ minus log of initial size, our observations will follow equation X above. Graphically, this curve:
 
 ```{r sigmoid log-sigmoid comparison, echo = FALSE}
 log_sigmoid <- function(t,Po=Po,K=K,r=r){
@@ -48,8 +66,15 @@ ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = log_sigmoid
 
 ```
 
+Thus, a good deal of the potential for detecting **growth** is washed out of the measure, particularly of course where the sigmoidal curve flips from convex to concave. This is not theoretically surprising, and, as noted above, we concur with the general recommendation to always fit a more suitable non-linear growth model where a time series of data ${S}^N_{i=1}$ is available. 
 
-Thus, a good deal of the potential for growth is washed out of the measure, particularly of course where the sigmoidal curve flips from convex to concave. This is not theoretically surprising, and, as noted above, we concur with the general recommendation to always fit a more suitable non-linear growth model where a time series of data ${S}^N_{i=1}$ is available. The practical point here is that use of the log-transformed measure should *not* be routine in analyses of ecological growth data where no such time series is available. 
+From a theoretical point of view, in fact, it makes just as much sense to exponentiate the observed size values $S_2$ and $S_1$, $e^{S_2} - e^{S_1}$. On the face of it, this seems absurd. Certainly, unlike the log measure, this does not correspond to any kind of potential growth dynamic. But the effect here is to linearize the concave portion of the sigmoidal curve, exactly analogous to linearizing the convex portion of the curve with the log measure.   
+
+The practical point here is that use of the log-transformed measure should *not* be routine in analyses of ecological growth data, outside of the context where exponential growth actually makes sense *a priori*. 
+
+
+
+### Approximation error of linear differencing versus log measure 
 
 Now, use of the linear difference $\frac{S_2 - S_1}{t}$ corresponds to assumption of a static linear growth rate dynamic, just as use of $\frac{log(S_2) - log(S_1)}{t}$ corresponds to assuming a constant exponential growth rate dynamic. In the latter case, the log-measure has the nice property of representing an ergodic observable (sense Peters and Gell-man 2016). While widely (and rightly) dismissed as unrealistic, the linear dynamic $\frac{S_2 - S_1}{t}$ may in fact be a generally superior measure for ecological analysis where no time series of size/biomass data is available.  
 
