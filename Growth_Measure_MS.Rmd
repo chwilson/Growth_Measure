@@ -3,9 +3,9 @@ title: "RGR MS"
 author: "Chris H. Wilson"
 date: "March 2, 2019"
 output:
+  word_document: default
   html_document: default
   pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +17,8 @@ library(ggplot2)
 1) Terminology: "linear difference" -> "linear growth"; "log measure" -> "log RGR"; "linear RGR != linear growth"
 
 2) Be clear about the dimensional comparisons. The RGR measures are not dimensionally the same as linear growth. 
+
+2b) RGR measures and all comparisons really, sensitive to the delta. 
 
 3) In the absence of a time-varying model, estimating RGR at one or two points in time is practically useless, without super strong priors. Where we are comparing across species, this gets complicated. The problem is when we do NOT know WHERE on the growth curve our observations are coming from. 
 
@@ -146,7 +148,7 @@ RGR_lin <- function(t,delta=delta,Po=Po,K=K,r=r){
 Po <- 1;
 K <- 10;
 r <- 0.1;
-delta <- 5
+delta <- 20
 
 #log_sigmoid_error(50,Po,K,r,delta)
 
