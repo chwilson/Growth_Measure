@@ -3,8 +3,8 @@ title: "RGR MS"
 author: "Chris H. Wilson"
 date: "March 2, 2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
   word_document: default
 ---
 
@@ -13,25 +13,35 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 
 ```
+### Key Points 
+1) Terminology: "linear difference" -> "linear growth"; "log measure" -> "log RGR"; "linear RGR != linear growth"
+
+2) Be clear about the dimensional comparisons. The RGR measures are not dimensionally the same as linear growth. 
+
+3) In the absence of a time-varying model, estimating RGR at one or two points in time is practically useless, without super strong priors. Where we are comparing across species, this gets complicated. The problem is when we do NOT know WHERE on the growth curve our observations are coming from. 
+
+4) The conclusion is a bit more annoying. Linear growth is just as good or better for much of the curve, but this offers little comfort when we are making cross-species' comparisons. If the goal is to estimate a treatment effect, linear growth at least is interpretable. 
+
 
 ### Background and Rationale 
 
-Analyzing growth of individuals is fundamental in many areas of ecology and biology. A common situation is the need to intercompare multiple individuals across genotypes or species in experimental or observational settings where variations in initial sizes and environmental factors both contribute to observed variations in size at any point in time. In this setting, a common default practice is to re-express growth as a relative measure, dividing the growth increment by the initial size. In the limit as the time period goes to zero, this can be represented as $$\frac{dS}{dt}\frac{1}{S}$$ 
+Analyzing growth of individuals is fundamental in many areas of ecology and biology. A common situation is the need to compare multiple individuals across genotypes or species in experimental or observational settings where variations in initial sizes and environmental factors both contribute to observed variations in growth. In this setting, a common default practice is to re-express growth as a relative measure, dividing the growth increment by the initial size. In the limit as the time period goes to zero, this can be represented as $$\frac{dS}{dt}\frac{1}{S}$$ 
 
 Without explicit specification of a time-varying dynamic, e.g. some kind of non-linear growth function, this representation corresponds to exponential growth. That is, the quantity obtained by integration of $$\frac{dS}{dt}\frac{1}{S} = k$$ over some time period, and given some initial size $S_0$
 
 is simply the familiar exponential equation $$S_t = S_0e^{kt}$$
 
 
-The quantity in equation 1 is often referred to as relative growth rate (RGR), and the usual method of quantification, hereafter the "log measure" corresponds to the solution in 2, as is readily checked. The log measure is, simply $\frac{log(S_2) - log(S_1)}{t}$
+The quantity in equation 1 is often referred to as relative growth rate (RGR), and the usual method of quantification, hereafter the "log RGR" corresponds to the solution in 2, as is readily checked. The log RGR is, simply $\frac{log(S_2) - log(S_1)}{t}$ The log RGR is very frequently utilized as a default in place of taking the difference $\frac{S_2 - S_1}{t}$, hereafter "linear growth rate", since it is seen as more effectively accounting for variations in initial size, given the understanding that size itself is a fundamental driver of subsequent growth. Note that the linear growth rate could also be divided by $S_1$ to return a "linear RGR". 
 
-The log measure is very frequently utilized as a default in place of taking the simply difference $\frac{S_2 - S_1}{t}$. XXX et al. (2012) summarized several flaws of the log measure and recommended instead to fit non-linear growth functions. I wholeheartedly concur with this advice. However, ecologists are often confronted with datasets where only 2 or 3 time periods are available, thus precluding effective fitting of non-linear functions. 
+XXX et al. (2012) summarized several flaws of the log RGR and recommended instead to fit non-linear growth functions. The non-linear growth functions can then be differentiated with respect to size $S$ in order to obtain a superior RGR measure. I wholeheartedly concur with this advice. However, ecologists are often confronted with datasets where only 2 or 3 time periods are available, thus precluding effective fitting of non-linear functions. In this context, the log RGR is widely recommended.  
 
-In this note, I demonstrate that the log measure should also not be used in the data limited setting of only 2 or 3 observation times. Instead, the linear difference is to be preferred for three reasons: 1) simplicity of interpretation, 2) ecological/biological validity, and 3) ease of use.    
+In this note, I demonstrate that the linear measures (linear growth rate, and linear RGR) are in many cases superior to the log RGR. To be sure, these quantities should be seen as answers to subtley different questions. My intent is to highlight the underlying assumptions, and challenge the status of log RGR as a default in the data limited setting. 
+
 
 ### Conceptual Overview
 
-First, we assume a basic theoretical framework for growth: the sigmoidal curve. Nearly every biologically motivated growth model follows sigmoidal behavior. For instance, West et al. (2001) famously derived a sigmoidal equation for growth from metabolic scaling theory. Although the universality of their particular model has been challenged, saturating non-linear growth has not. Therefore, we will compare the linear difference and the log measure to a sigmoidal curve, which is itself presumed to better approximate underlying biological/ecological reality. Before proceeding to a brief mathematical exposition, let's consider a heuristic/intuitive argument. The following figure encapsulates my entire argument:   
+First, we assume a basic theoretical framework for growth: the sigmoidal curve. Nearly every biologically motivated growth model follows sigmoidal behavior. For instance, West et al. (2001) famously derived a sigmoidal equation for growth from metabolic scaling theory. Mechanistic models of photosynthesis and leaf area also result in sigmoidal growth (CITE). Although particular sigmoidal models can be challenged, the qualitative pattern is universal. Therefore, we will compare log RGR and linear growth rate to a sigmoidal curve, which is itself presumed to better approximate underlying biological/ecological reality. The conceptual basis of my analysis is encapsulated in the following figure:   
 
 ```{r, echo = FALSE, include = FALSE}
 sigmoid2 <- function(t,Po=Po,K=K,r=r){
@@ -54,17 +64,21 @@ ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = sigmoid2, a
 knitr::include_graphics("Conceptual_Fig.png")
 
 ```
-In the convex zone, the usual log measure is a fine approximation. However, the zone of approximate linearity is just as large (if not larger), where the linear difference is to be preferred. Finally, neither approximation is great in the upper portion of the concave zone, although as demonstrated below, the linear approximation is uniformly superior there. 
+
+The first portion of the sigmoidal curve is convex. In this zone, log RGR is a decent approximation to underyling growth. However, there is an adjcent, larger zone of approximate linearity, where the linear growth rate describes biological reality more closely. Finally, neither approximation is great in the upper portion of the curve, well into its concave portion, although the linear approximation is uniformly superior throughout the concave zone. 
+
+### Mathematical Analysis of Log RGR    
+
+## General Taylor Series Approximation 
 
 Mathematically, the argument can be boiled down for any generic equation for growth over time: $S_t = f(S,t)$. Using Taylor Series, we can approximate around some value $a$ to second order with a generic function $g(S,t)$ as: $$f(S,t) \approx g(S=a,t) + g'(S=a,t) \times (S-a) + \frac{1}{2}g''(S=a,t)\times(S-a)^2$$  
 
-As noted above, the canonical log measure corresponds to exponential dynamics $S_t = S_0e^{kt}$. Use of exponential dynamics to approximate $S_t = f(S,t)$ obviously only works well where both the first and second derivative of $f(S,t)$ are positive (i.e. where function is convex). Given that the second derivative of any sigmoidal curve flips from positive to negative, this approximation error grows rapidly outside of a narrow zone. 
+As noted above, the canonical log RGR corresponds to exponential dynamics $S_t = S_0e^{kt}$. Use of exponential dynamics to approximate $S_t = f(S,t)$ obviously only works well where both the first and second derivative of $f(S,t)$ are positive (i.e. where function is convex). Given that the second derivative of any sigmoidal curve flips from positive to negative, this approximation error grows rapidly outside of a narrow zone. 
 
-### Mathematical Analysis of Log Measure  
-
+## Analysis 
 We take the familiar logistic equation as a reasonable representaton for sigmoidal growth, while noting that many options are available: 
 
-$$S_t = \frac{KS_0e^{rt}}{K+P_0(e^{rt}-1)}$$
+$$S_t = \frac{KS_0e^{rt}}{K+S_0(e^{rt}-1)}$$
 
 Given this representation of underlying growth, the first question is: what does the canonical log measure $\frac{log(S_2) - log(S_1)}{t}$ correspond to? In other words, we want to ask what happens given exact measurements of $S_2$ and $S_1$, given that they are sampled from above equation. For $log(S_t)$ We have: 
 
@@ -72,12 +86,14 @@ $$\log(S_t) = log(K) + log(S_0) + rt - log(K + S_0(e^{rt}-1))$$
 
 If we have size observations $S_1$ and $S_2$ from two times, $t_1$ and $t_2$,the difference between them is: 
 
-$$\log(S_2) - log(S_1) = r(t_2 - t_1) + log(\frac{K + P_0(e^{rt_1}-1)}{K + P_0(e^{rt_2}-1)})$$
+$$\log(S_2) - log(S_1) = r(t_2 - t_1) + log(\frac{K + S_0(e^{rt_1}-1)}{K + S_0(e^{rt_2}-1)})$$
 
 For any given interval $t_2~t_1$:  
-$$\frac{log(S_t) - log(S_0)}{t_2 - t_1} = r + \frac{1}{t_2-t_1}log(\frac{K + P_0(e^{rt_1}-1)}{K + P_0(e^{rt_2}-1)})$$
-One flaw of the canonical log measure (as pointed out previously by XXXX) is that it is really time-varying, but in effect treated as though time constant (by necessity given the limitation of data). If we want to investigate how this quantity varies with sampling of arbitrary timepoints $t_2$ and $t_1$ along the sigmoidal curve, we re-express $t_2=t_1+\Delta$ and let $t_1=t$
-$$\frac{log(S_{t+\Delta}) - log(S_t)}{\Delta} = r + \frac{1}{\Delta}log(\frac{K + P_0(e^{rt}-1)}{K + P_0(e^{r({t+\Delta})}-1)})$$
+$$\frac{log(S_t) - log(S_0)}{t_2 - t_1} = r + \frac{1}{t_2-t_1}log(\frac{K + S_0(e^{rt_1}-1)}{K + S_0(e^{rt_2}-1)})$$
+One flaw of log RGR (as pointed out previously by XXXX) is that RGR is really time-varying, but in effect treated as though time constant (by necessity given the limitation of data). If we want to investigate how this quantity varies with sampling of arbitrary timepoints $t_2$ and $t_1$ along the sigmoidal curve, we re-express $t_2=t_1+\Delta$ and let $t_1=t$
+$$\frac{log(S_{t+\Delta}) - log(S_t)}{\Delta} = r + \frac{1}{\Delta}log(\frac{K + S_0(e^{rt}-1)}{K + S_0(e^{r({t+\Delta})}-1)})$$
+
+### Log RGR versus Linear RGR 
 
 Graphically, the comparison with the observed growth increments is: 
 ```{r, echo = FALSE}
@@ -104,7 +120,46 @@ ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = log_sigmoid
 
 ```
 
-This comparison, while visually striking, is fundamentally misleading since the log measure does not really have the same dimensions as the observed growth increment. It is really a **rate** with dimensions of $\frac{1}{time}$, and the usual re-expression as $g~g^-1~time^-1$ is unhelpful at best. Thus, the only way to compare use of the canonical log measure to the simple linear measure is to reformulate the problem in terms of implied dynamics.   
+Although striking, this comparison is misleading since the quantites differ in dimesion. The log measure is really a **rate** with dimensions of $\frac{1}{time}$, and I should note that the usual re-expression as $g~g^-1~time^-1$ is unhelpful at best. In order to make a dimensionally valid comparison, the linear measure must be divided by the initial mass. Here is the result of doing so: 
+
+```{r, echo = FALSE}
+
+RGR_log <- function(t,delta=delta,Po=Po,K=K,r=r){
+  log_val <- r + (1/delta)*log((K+Po*(exp(r*t)-1))/(K+Po*(exp(r*(t+delta))-1)));
+  return(log_val);
+}
+
+RGR_sigmoid <- function(t,Po=Po,K=K,r=r){
+  RGR <- (r*exp(-r*t)*(K-Po))/(Po + exp(-r*t)*(K-Po))
+  return(RGR); 
+}
+
+RGR_lin <- function(t,delta=delta,Po=Po,K=K,r=r){
+  line_slope <- (((K*Po*exp(r*(t+delta)))/(K+Po*(exp(r*(t+delta)))-1)) - ((K*Po*exp(r*t))/(K+Po*(exp(r*t)-1))))/(delta);
+  #line_function <- (K*Po*exp(r*t1))/(K+Po*(exp(r*t1)-1)) + 
+  #line_slope*(t-t1);
+  return(line_slope/((K*Po*exp(r*t))/(K+Po*(exp(r*t)-1))));
+}
+
+#log(9) - log(7)
+
+Po <- 1;
+K <- 10;
+r <- 0.1;
+delta <- 5
+
+#log_sigmoid_error(50,Po,K,r,delta)
+
+ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = RGR_log, args = list(delta,Po,K,r), color = "red") + stat_function(fun = RGR_lin, args = list(delta,Po,K,r), color = "blue") +
+  stat_function(fun = RGR_sigmoid, args = list(Po,K,r)) + ylab("RGR (compared)") + xlab("Time") 
+
+```
+
+As expected, the log RGR outperforms the linear RGR in matching the real (time varying) RGR early in the convex portion of the curve, then gets outperfomed by the linear RGR thereafter. Both become pretty bad in the concave portion of the curve. 
+
+The question is, given a set of data with one or two observation periods, what quantity should be analyzed? The log RGR, the linear growth rate, or perhaps the linear RGR? First, as noted above, these quantities are answers to different questions at some level. The RGR measures differ in dimension from the linear growth rate measure. The answer the question: how much new growth occurs as a function of size? The linear growth rate simply answers: how much new growth has occurred?  
+
+**The only reason to prefer the former is the idea that, in the long run, it will better predict growth dynamics.** We have already rejected the idea that, in the data limited setting considered here, we are getting an accurate understanding of time-varying growth. In order to game this out, we need to look at implied dynamics. 
 
 <!-- 
 If we simplify, and set $t_1=0$, thus $S_1 = S_0$, re-expressing $t_2=t$, we have: 
@@ -141,9 +196,9 @@ From a theoretical point of view, in fact, it makes just as much sense to expone
 The practical point here is that use of the log-transformed measure should *not* be routine in analyses of ecological growth data, outside of the context where exponential growth actually makes sense *a priori*. 
 -->
 
-### Comparing log measure and linear measure in terms of dynamics  
+### Comparing log RGR and linear growth in terms of dynamics  
 
-Use of the linear difference $\frac{S_2 - S_1}{t}$ corresponds to assumption of a static linear growth rate dynamic, just as use of $\frac{log(S_2) - log(S_1)}{t}$ corresponds to assuming a static exponential growth rate dynamic. In the latter case, the log-measure has the nice property of representing an ergodic observable (sense Peters and Gell-man 2016). While widely (and rightly) dismissed as unrealistic, the linear dynamic $\frac{S_2 - S_1}{t}$ may in fact be a generally superior measure for ecological analysis where no time series of size/biomass data is available.  
+Use of the linear growth rate $\frac{S_2 - S_1}{t}$ corresponds to assumption of a static linear growth rate dynamic, just as use of $\frac{log(S_2) - log(S_1)}{t}$ corresponds to assuming a static exponential growth rate dynamic. In the latter case, the log RGR has the nice property of representing an ergodic observable (sensu Peters and Gell-man 2016), but is only truly valid assuming exponential growth. While widely (and rightly) dismissed as unrealistic, the linear growth rate $\frac{S_2 - S_1}{t}$ may in fact be a generally superior measure for ecological analysis where no time series of size/biomass data is available.  
 
 The comparison made here is the goodness of fit implied by replacing the sigmoidal $S_t$ with either a linear approximation or an exponential approximation, given sampling of size from two pairs of time points: 1) from the early ("exponential") portion of sigmoid curve, and 2) from the middle ("linear") portion of sigmoidal curve, and 3) from the saturating part of curve. 
 
@@ -216,9 +271,12 @@ ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, ar
 ```
 As expected, in this scenario, the linear approximation is uniformly better and thus always to be preferred.
 
-### Statistical Properties
+At this point, we have seen that the linear growth rate has a large range in which it is superior to the log RGR in terms of implied dynamics (ability to forecast real growth), as well as in terms of approximating the "true" instantaneous RGR.  
 
-We can derive the sampling distribution of the log measure  $\frac{log(S_2) - log(S_1)}{t}$ based on a Taylor Series' approximation. Specifically, we consider measurements $S_2$ and $S_1$ with normally distributed error, where the variance scales with the mean (a fairly typical property in biological/ecological data). The distribution of $S_2$ - $S_1$ is then simply the difference of two Normals. Next, we approximate the moments of the distribution of $log(S_t)$ as: $$E[log(S_t)] \approx log(\mu_{S_t}) - \frac{\sigma^2}{2*\mu_{S_t}^2}$$. Using the delta method for variance, we have: $$Var[log(S_t)] \approx \frac{\sigma^2}{\mu_{S_t}^2}$$
+
+### Statistical Properties of Log RGR 
+
+We can derive the sampling distribution of the log RGR  $\frac{log(S_2) - log(S_1)}{t}$ based on a Taylor Series' approximation. Specifically, we consider measurements $S_2$ and $S_1$ with normally distributed error, where the variance scales with the mean (a fairly typical property in biological/ecological data). The distribution of $S_2$ - $S_1$ is then simply the difference of two Normals. Next, we approximate the moments of the distribution of $log(S_t)$ as: $$E[log(S_t)] \approx log(\mu_{S_t}) - \frac{\sigma^2}{2*\mu_{S_t}^2}$$. Using the delta method for variance, we have: $$Var[log(S_t)] \approx \frac{\sigma^2}{\mu_{S_t}^2}$$
 
 Given a constant coefficient of variation (reflecting variance scaling with mean on the original scale) $CV_s$ the sampling distribution of $\frac{log(S_2) - log(S_1)}{t}$ (setting $t$ to unit scale), is therefore: $$ N(log(S_2) - log(S_1), \sqrt2CV_s)$$ 
 
@@ -230,45 +288,63 @@ For our previous parameter value simulations above, here is the curve of $CV_l$ 
 ```{r, echo = FALSE}
 
 master_func <- function(t,delta,Po=Po,K=K,r=r){
-  log_mu_val_1 <- log((K*Po*exp(r*t))/(K+Po*(exp(r*t)-1)));
-  log_mu_val_2 <- log((K*Po*exp(r*(t+delta)))/(K+Po*(exp(r*(t+delta))-1)));
+  log_mu_val_1 <- log((K*Po*exp(r*(t*delta)))/(K+Po*(exp(r*(t*delta))-1)));
+  log_mu_val_2 <- log((K*Po*exp(r*((t*delta)+delta)))/(K+Po*(exp(r*((t*delta)+delta))-1)));
   cv_val_1 <- 0.2
  cv_val_2 <- 0.2
  
-mu_log_diff <- log_mu_val_2 - log_mu_val_1 - (1/sqrt(2))*(cv_val_1)^2 + (1/sqrt(2))*cv_val_2^2;
+mu_log_diff <- (log_mu_val_2 - log_mu_val_1 - (1/sqrt(2))*(cv_val_1)^2 + (1/sqrt(2))*cv_val_2^2)/delta;
 
-var_log_diff <- (cv_val_1^2) + (cv_val_2^2);
+
+var_log_diff <- ((cv_val_1^2) + (cv_val_2^2))/delta^2;
 
 cv_log_diff <- sqrt(var_log_diff)/mu_log_diff; 
 return(cv_log_diff/cv_val_1);
 }
 
-ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw()
+#master_func2 <- n; 
+# log_mu_val_1 <- log((K*Po*exp(r*(t*delta)))/(K+Po*(exp(r*(t*delta))-1)));
+#  log_mu_val_2 <- log((K*Po*exp(r*((t*delta)+delta)))/(K+Po*(exp(r*((t*delta)+delta))-1)));
+#  cv_val_1 <- 0.2
+# cv_val_2 <- 0.2
+#mu_1 <- exp(log_mu_val_1); 
+#sd_1 <- mu_1*cv_val_1;
+#mu_2 <- exp(log_mu_val_2);
+#sd_2 <- mu_2*cv_val_2; 
+
+
+ggplot(data = data.frame(t=c(0,50/delta)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + ylab("Dimensionless CV") + xlab("Dimensionless Time")
 
 ```
 
-As can be seen, in this situation, it is always worse! What happens if we accelerate growth rate considerably (5X)
+As can be seen, in this situation, it is always worse! What happens if we accelerate growth rate considerably (10X)
 
 ```{r, echo = FALSE}
-r2 <- r*5  
-ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r=r2)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + scale_x_continuous(limits = c(0,3))
+r2 <- r*10 
+K2 <- K*5
+delta <- 5
+
+ggplot(data = data.frame(t=c(0,50/delta)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K=K2,r=r2)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + scale_x_continuous(limits = c(0,2)) + ylab("Dimensionless CV") + xlab("Dimensionless time")
+
 
 ```
 
-There is a small window in early growth where it is expected to have better properties for estimating observed differences, but it rapidly loses power. 
+Expressed on a dimensionless time scale representing multiples of $\Delta$ we see that there is a small zone of equivalence. But essentially, it is uniformly less powerful. In the end, it is perhaps not too surprising that it is more difficult to estimate an RGR than a GR. Nevertheless, this should give pause to default use of log RGR. 
 
 
-### Case Study: A Situation Statistical Analysis of Log Measure and Linear Measure Diverge
+### Case Study
 
-Maybe not necessary here. Theoretical demonstration feels complete. 
+Maybe not necessary here. Theoretical demonstration feels complete. OTOH, data are what motivate this! 
 
 
 ### Conclusions and Recommendations 
 
-In summary, the chief virtue of the $\frac{log(S_2) - log(S_1)}{t}$ measure is that it effectively linearizes the differences in size from the convex portion of biological growth curve. Thus, it arguably might increase the ability to infer subtle but consequential differences in growth rates based on small differences in observed sizes. However, analysis of the statistical sampling distribution suggests that inference on this quantity is actually more difficult than inference on the linear measure. In fact, ability to detect differences rapidly declines with position on the sigmoidal curve.  
+In summary, the chief virtue of the log RGR $\frac{log(S_2) - log(S_1)}{t}$ measure in the data limited setting is that it is best suited to estimate RGR in approximately exponential phases of growth. In a narrow band of the sigmoid curve, it is arguably superior to working with linear growth rate or RGR.  
 
-The much maligned linear measure is a superior default on three grounds therefore. First, it corresponds far more directly with current ecological reality. It is a measure with an interpretable biological dimension (usually mass or length, whereas the log measure has dimensions of $\frac{1}{time}$). This enables us to more literally describe our system. Second, interpreted in terms of dynamics, it is *less wrong* than the exponential approximation implied by the log measure. Third, it has superior statistical properties almost everywhere.   
+The much maligned linear growth rate is a superior default on three grounds therefore. First, it represents an intuitive quantity with dimensions of size/length/mass, whereas any RGR has dimensions of $\frac{1}{time}$). Second, interpreted in terms of dynamics, it is *a better approximation* than the exponential dynamics implied by the log RGR in many parts of the growth curve. Third, it has superior statistical properties almost everywhere. 
 
-The widespread use of the log measure of "RGR" $\frac{log(S_2) - log(S_1)}{t}$ as an *a priori* preferred default for the data-limited situation should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate. The ideal scenario is to collect a proper time series (5-7+) and fit a proper growth model. Where data are at all limiting, we recommend careful incorporation of literature values and other external information as priors in a fully Bayesian analysis in order to regularize inferences. 
+The widespread use of the log RGR $\frac{log(S_2) - log(S_1)}{t}$ as an *a priori* preferred default for the data-limited situation should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate. Unfortunately, none of the measures discussed here can overcome a critical problem in this setting: we do NOT know what portion of the sigmoidal growth curve we are sampling from, in many cases. In this context, careful thought and attention is needed in making comparisons among possible measures. 
+
+The ideal scenario is to collect a proper time series (5-7+) and fit a proper growth model. Where data are at all limiting, I recommend careful incorporation of literature values and other external information as priors in a fully Bayesian analysis in order to regularize inferences. 
 
 
