@@ -3,27 +3,32 @@ title: "RGR MS"
 author: "Chris H. Wilson"
 date: "March 2, 2019"
 output:
+  pdf_document: default
   word_document: default
   html_document: default
-  pdf_document: default
+#    fig_caption: yes 
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 
+
 ```
 ### Key Points 
 1) Terminology: "linear difference" -> "linear growth"; "log measure" -> "log RGR"; "linear RGR != linear growth"
 
-2) Be clear about the dimensional comparisons. The RGR measures are not dimensionally the same as linear growth. 
+2) Be clear about the dimensional comparisons. The RGR measures are not dimensionally the same as linear growth (AGR).  
 
-2b) RGR measures and all comparisons really, sensitive to the delta. 
+3) RGR measures and all comparisons really, sensitive to the delta (elapsed time between measurements). Linear RGR > log RGR for much of the curve.  
 
-3) In the absence of a time-varying model, estimating RGR at one or two points in time is practically useless, without super strong priors. Where we are comparing across species, this gets complicated. The problem is when we do NOT know WHERE on the growth curve our observations are coming from. 
+4) Linear growth (AGR) is just as good as log RGR or better for much of the curve in terms of dynamics/prediction. 
 
-4) The conclusion is a bit more annoying. Linear growth is just as good or better for much of the curve, but this offers little comfort when we are making cross-species' comparisons. If the goal is to estimate a treatment effect, linear growth at least is interpretable. 
+5) If the goal is to estimate a treatment effect, linear growth at least is more interpretable, and subject to less statistical estimation variability.  
 
+6) Ulimately, things are inherently complicated in this data limited setting. The problem is when we do NOT know WHERE on the growth curve our observations are coming from. None of the measures discussed here get around this unavoidable fact. 
+
+7) No reason to insist on log RGR in this setting; in fact, several reasons to NOT use it. 
 
 ### Background and Rationale 
 
@@ -118,7 +123,7 @@ delta <- 5
 
 #log_sigmoid_error(50,Po,K,r,delta)
 
-ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = log_sigmoid, args = list(delta,Po,K,r), color = "red") + stat_function(fun = sigmoid, args = list(delta,Po,K,r)) + ylab("Growth Measure") + xlab("Time") 
+ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = log_sigmoid, args = list(delta,Po,K,r), color = "red") + stat_function(fun = sigmoid, args = list(delta,Po,K,r)) + ylab("Measure") + xlab("Time") + ggtitle("Log RGR (red) versus Growth Increments (black)") + theme_bw()
 
 ```
 
@@ -153,15 +158,16 @@ delta <- 20
 #log_sigmoid_error(50,Po,K,r,delta)
 
 ggplot(data = data.frame(t=c(0,100)),aes(x=t)) + stat_function(fun = RGR_log, args = list(delta,Po,K,r), color = "red") + stat_function(fun = RGR_lin, args = list(delta,Po,K,r), color = "blue") +
-  stat_function(fun = RGR_sigmoid, args = list(Po,K,r)) + ylab("RGR (compared)") + xlab("Time") 
+  stat_function(fun = RGR_sigmoid, args = list(Po,K,r)) + ylab("RGR (compared)") + xlab("Time") + theme_bw() + ggtitle("True RGR versus log RGR (red) and linear RGR (blue)")
 
 ```
 
 As expected, the log RGR outperforms the linear RGR in matching the real (time varying) RGR early in the convex portion of the curve, then gets outperfomed by the linear RGR thereafter. Both become pretty bad in the concave portion of the curve. 
 
-The question is, given a set of data with one or two observation periods, what quantity should be analyzed? The log RGR, the linear growth rate, or perhaps the linear RGR? First, as noted above, these quantities are answers to different questions at some level. The RGR measures differ in dimension from the linear growth rate measure. The answer the question: how much new growth occurs as a function of size? The linear growth rate simply answers: how much new growth has occurred?  
+The question is, given a set of data with one or two observation periods, what quantity should be analyzed? The log RGR, the linear growth rate, or perhaps the linear RGR? First, as noted above, these quantities are answers to different questions at some level. The RGR measures differ in dimension from the linear growth rate measure. They answer the question: how much new growth occurs as a function of size? The linear growth rate extrapolates growth independent of size. Despite the conceptual defects of the latter,  
+**the only reason to prefer the former is the idea that, in the long run, it will better predict growth dynamics.** 
 
-**The only reason to prefer the former is the idea that, in the long run, it will better predict growth dynamics.** We have already rejected the idea that, in the data limited setting considered here, we are getting an accurate understanding of time-varying growth. In order to game this out, we need to look at implied dynamics. 
+We have already rejected the idea that, in the data limited setting considered here, we are getting an accurate understanding of time-varying growth. In order to game this out, we need to look at implied dynamics. 
 
 <!-- 
 If we simplify, and set $t_1=0$, thus $S_1 = S_0$, re-expressing $t_2=t$, we have: 
@@ -206,7 +212,7 @@ The comparison made here is the goodness of fit implied by replacing the sigmoid
 
 1) $t_2 = 14$ and $t_1=2$:
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
 t2 <- 14
 t1 <- 2
 
@@ -231,14 +237,16 @@ sigmoid_exp_approx <- function(t,t1,t2,Po=Po,K=K,r=r){
 
 ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, args = list(Po,K,r)) + stat_function(fun = sigmoid_exp_approx, args = list(t1,t2,Po,K,r), color = "red") +
   stat_function(fun = sigmoid_lin_approx, args = list(t1,t2,Po,K,r),color = "green") +
-  theme_bw() + scale_y_continuous(limits = c(0,15))
+  theme_bw() + scale_y_continuous(limits = c(0,15)) + ggtitle("True growth (black) versus exponential (red) or linear (green) approximations")
+
 
 ```
+
 As expected, the exponential approximation works better with data from the convex portion of growth curve. However, the improvement is marginal in absolute value, and quickly diverges outside of the convex portion (in accord with our intuitive model). 
 
 2) $t_2 = 25$ and $t_1 = 12$:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message = FALSE}
 
 
 
@@ -248,17 +256,18 @@ t1 <- 12
 
 ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, args = list(Po,K,r)) + stat_function(fun = sigmoid_exp_approx, args = list(t1,t2,Po,K,r), color = "red") +
   stat_function(fun = sigmoid_lin_approx, args = list(t1,t2,Po,K,r),color = "green") +
-  theme_bw() + scale_y_continuous(limits = c(0,15))
+  theme_bw() + scale_y_continuous(limits = c(0,15)) + ggtitle("True growth (black) versus exponential (red) and linear (green) approximations")
 
 
 
 
 ```
+
 As can be seen, the linear model is a better approximation where data are taken from within the center part of the growth cycle. Again, the improvement is marginal, but real. Forecast accuracy is much higher, and backcast accuracy marginally worse. 
 
 3) $t_2=45$ and $t_1=30$ 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
 
 t2 <- 45
 t1 <- 30 
@@ -266,11 +275,12 @@ t1 <- 30
 
 ggplot(data = data.frame(t=c(0,50)),aes(x=t)) + stat_function(fun = sigmoid2, args = list(Po,K,r)) + stat_function(fun = sigmoid_exp_approx, args = list(t1,t2,Po,K,r), color = "red") +
   stat_function(fun = sigmoid_lin_approx, args = list(t1,t2,Po,K,r),color = "green") +
-  theme_bw() + scale_y_continuous(limits = c(0,15))
+  theme_bw() + scale_y_continuous(limits = c(0,15)) + ggtitle("True growth (black) versus exponential (red) and linear (green) approximations")
 
 
 
 ```
+
 As expected, in this scenario, the linear approximation is uniformly better and thus always to be preferred.
 
 At this point, we have seen that the linear growth rate has a large range in which it is superior to the log RGR in terms of implied dynamics (ability to forecast real growth), as well as in terms of approximating the "true" instantaneous RGR.  
@@ -284,7 +294,7 @@ Given a constant coefficient of variation (reflecting variance scaling with mean
 
 The CV of the log measure is then related to the expectaiton of the Z scores of the new sampling distribution, and is inversely proportional to statistical power: $$CV_l =\frac{\sqrt2}{log(S_2) - log(S_1)}CV_s$$
 
-Thus, where $log(S_2) - log(S_1) > \sqrt2$ over a unit time increment, the log measure should have greater statistical power, while it loses statistical power as the log measure declines (which as we saw in section XXX above occurs faster than the linear difference of course). This can be reformulated as $S_2=S_1e^{\sqrt2}$, revealing a *scale free* property of statistical analysis of the log measure. Specifically, wherever the multiplicative growth increase on a unit time scale $<e^{\sqrt2}$, the log measure has worse statistical properties than the linear difference. 
+Thus, where $log(S_2) - log(S_1) > \sqrt2$ over a unit time increment, the log RGR should have greater statistical power, while it loses statistical power as the log RGR declines. This can be reformulated as $S_2=S_1e^{\sqrt2}$, revealing a *scale free* property of statistical analysis of the log RGR. Specifically, wherever the multiplicative growth increase on a unit time scale $<e^{\sqrt2}$, the log RGR has worse statistical properties than the linear growth rate. 
 
 For our previous parameter value simulations above, here is the curve of $CV_l$ with time $t$, expressed in multiples of $CV_s$: 
 ```{r, echo = FALSE}
@@ -315,7 +325,7 @@ return(cv_log_diff/cv_val_1);
 #sd_2 <- mu_2*cv_val_2; 
 
 
-ggplot(data = data.frame(t=c(0,50/delta)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + ylab("Dimensionless CV") + xlab("Dimensionless Time")
+ggplot(data = data.frame(t=c(0,50/delta)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K,r)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + ylab("Dimensionless CV") + xlab("Dimensionless Time") + ggtitle("Sampling variance of linear growth (red dashed) versus log RGR (black) measures")
 
 ```
 
@@ -326,7 +336,7 @@ r2 <- r*10
 K2 <- K*5
 delta <- 5
 
-ggplot(data = data.frame(t=c(0,50/delta)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K=K2,r=r2)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + scale_x_continuous(limits = c(0,2)) + ylab("Dimensionless CV") + xlab("Dimensionless time")
+ggplot(data = data.frame(t=c(0,50/delta)),aes(x=t)) + stat_function(fun = master_func, args = list(delta,Po,K=K2,r=r2)) + geom_hline(aes(yintercept = 1),color = "red", linetype = "dashed") + theme_bw() + scale_x_continuous(limits = c(0,2)) + ylab("Dimensionless CV") + xlab("Dimensionless time") + ggtitle("Sampling variance of linear growth (red dashed) versus log RGR (black) measures")
 
 
 ```
@@ -345,7 +355,7 @@ In summary, the chief virtue of the log RGR $\frac{log(S_2) - log(S_1)}{t}$ meas
 
 The much maligned linear growth rate is a superior default on three grounds therefore. First, it represents an intuitive quantity with dimensions of size/length/mass, whereas any RGR has dimensions of $\frac{1}{time}$). Second, interpreted in terms of dynamics, it is *a better approximation* than the exponential dynamics implied by the log RGR in many parts of the growth curve. Third, it has superior statistical properties almost everywhere. 
 
-The widespread use of the log RGR $\frac{log(S_2) - log(S_1)}{t}$ as an *a priori* preferred default for the data-limited situation should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate. Unfortunately, none of the measures discussed here can overcome a critical problem in this setting: we do NOT know what portion of the sigmoidal growth curve we are sampling from, in many cases. In this context, careful thought and attention is needed in making comparisons among possible measures. 
+The widespread use of the log RGR $\frac{log(S_2) - log(S_1)}{t}$ as an *a priori* preferred default for the data-limited situation should be abandoned. Where only two or three time points are available, fitting a linear growth trend is just as good if not better than estimating an exponential growth rate (log RGR). Unfortunately, none of the measures discussed here can overcome a critical problem in this setting: we do NOT know what portion of the sigmoidal growth curve we are sampling from, in many cases. In this context, careful thought and attention is needed in making comparisons among possible measures. 
 
 The ideal scenario is to collect a proper time series (5-7+) and fit a proper growth model. Where data are at all limiting, I recommend careful incorporation of literature values and other external information as priors in a fully Bayesian analysis in order to regularize inferences. 
 

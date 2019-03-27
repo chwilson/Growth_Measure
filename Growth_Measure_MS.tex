@@ -98,25 +98,26 @@
   growth''
 \item
   Be clear about the dimensional comparisons. The RGR measures are not
-  dimensionally the same as linear growth.
-\end{enumerate}
-
-2b) RGR measures and all comparisons really, sensitive to the delta.
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi})}
-\setcounter{enumi}{2}
+  dimensionally the same as linear growth (AGR).
 \item
-  In the absence of a time-varying model, estimating RGR at one or two
-  points in time is practically useless, without super strong priors.
-  Where we are comparing across species, this gets complicated. The
-  problem is when we do NOT know WHERE on the growth curve our
-  observations are coming from.
+  RGR measures and all comparisons really, sensitive to the delta
+  (elapsed time between measurements). Linear RGR \textgreater{} log RGR
+  for much of the curve.
 \item
-  The conclusion is a bit more annoying. Linear growth is just as good
-  or better for much of the curve, but this offers little comfort when
-  we are making cross-species' comparisons. If the goal is to estimate a
-  treatment effect, linear growth at least is interpretable.
+  Linear growth (AGR) is just as good as log RGR or better for much of
+  the curve in terms of dynamics/prediction.
+\item
+  If the goal is to estimate a treatment effect, linear growth at least
+  is more interpretable, and subject to less statistical estimation
+  variability.
+\item
+  Ulimately, things are inherently complicated in this data limited
+  setting. The problem is when we do NOT know WHERE on the growth curve
+  our observations are coming from. None of the measures discussed here
+  get around this unavoidable fact.
+\item
+  No reason to insist on log RGR in this setting; in fact, several
+  reasons to NOT use it.
 \end{enumerate}
 
 \subsubsection{Background and Rationale}\label{background-and-rationale}
@@ -265,15 +266,17 @@ The question is, given a set of data with one or two observation
 periods, what quantity should be analyzed? The log RGR, the linear
 growth rate, or perhaps the linear RGR? First, as noted above, these
 quantities are answers to different questions at some level. The RGR
-measures differ in dimension from the linear growth rate measure. The
+measures differ in dimension from the linear growth rate measure. They
 answer the question: how much new growth occurs as a function of size?
-The linear growth rate simply answers: how much new growth has occurred?
+The linear growth rate extrapolates growth independent of size. Despite
+the conceptual defects of the latter,\\
+\textbf{the only reason to prefer the former is the idea that, in the
+long run, it will better predict growth dynamics.}
 
-\textbf{The only reason to prefer the former is the idea that, in the
-long run, it will better predict growth dynamics.} We have already
-rejected the idea that, in the data limited setting considered here, we
-are getting an accurate understanding of time-varying growth. In order
-to game this out, we need to look at implied dynamics.
+We have already rejected the idea that, in the data limited setting
+considered here, we are getting an accurate understanding of
+time-varying growth. In order to game this out, we need to look at
+implied dynamics.
 
 \subsubsection{Comparing log RGR and linear growth in terms of
 dynamics}\label{comparing-log-rgr-and-linear-growth-in-terms-of-dynamics}
@@ -308,6 +311,7 @@ saturating part of curve.
 \end{verbatim}
 
 \includegraphics{Growth_Measure_MS_files/figure-latex/unnamed-chunk-5-1.pdf}
+
 As expected, the exponential approximation works better with data from
 the convex portion of growth curve. However, the improvement is marginal
 in absolute value, and quickly diverges outside of the convex portion
@@ -330,6 +334,7 @@ in absolute value, and quickly diverges outside of the convex portion
 \end{verbatim}
 
 \includegraphics{Growth_Measure_MS_files/figure-latex/unnamed-chunk-6-1.pdf}
+
 As can be seen, the linear model is a better approximation where data
 are taken from within the center part of the growth cycle. Again, the
 improvement is marginal, but real. Forecast accuracy is much higher, and
@@ -344,6 +349,7 @@ backcast accuracy marginally worse.
 \end{enumerate}
 
 \includegraphics{Growth_Measure_MS_files/figure-latex/unnamed-chunk-7-1.pdf}
+
 As expected, in this scenario, the linear approximation is uniformly
 better and thus always to be preferred.
 
@@ -377,14 +383,12 @@ scores of the new sampling distribution, and is inversely proportional
 to statistical power: \[CV_l =\frac{\sqrt2}{log(S_2) - log(S_1)}CV_s\]
 
 Thus, where \(log(S_2) - log(S_1) > \sqrt2\) over a unit time increment,
-the log measure should have greater statistical power, while it loses
-statistical power as the log measure declines (which as we saw in
-section XXX above occurs faster than the linear difference of course).
-This can be reformulated as \(S_2=S_1e^{\sqrt2}\), revealing a
-\emph{scale free} property of statistical analysis of the log measure.
-Specifically, wherever the multiplicative growth increase on a unit time
-scale \(<e^{\sqrt2}\), the log measure has worse statistical properties
-than the linear difference.
+the log RGR should have greater statistical power, while it loses
+statistical power as the log RGR declines. This can be reformulated as
+\(S_2=S_1e^{\sqrt2}\), revealing a \emph{scale free} property of
+statistical analysis of the log RGR. Specifically, wherever the
+multiplicative growth increase on a unit time scale \(<e^{\sqrt2}\), the
+log RGR has worse statistical properties than the linear growth rate.
 
 For our previous parameter value simulations above, here is the curve of
 \(CV_l\) with time \(t\), expressed in multiples of \(CV_s\):
@@ -427,10 +431,10 @@ The widespread use of the log RGR \(\frac{log(S_2) - log(S_1)}{t}\) as
 an \emph{a priori} preferred default for the data-limited situation
 should be abandoned. Where only two or three time points are available,
 fitting a linear growth trend is just as good if not better than
-estimating an exponential growth rate. Unfortunately, none of the
-measures discussed here can overcome a critical problem in this setting:
-we do NOT know what portion of the sigmoidal growth curve we are
-sampling from, in many cases. In this context, careful thought and
+estimating an exponential growth rate (log RGR). Unfortunately, none of
+the measures discussed here can overcome a critical problem in this
+setting: we do NOT know what portion of the sigmoidal growth curve we
+are sampling from, in many cases. In this context, careful thought and
 attention is needed in making comparisons among possible measures.
 
 The ideal scenario is to collect a proper time series (5-7+) and fit a
